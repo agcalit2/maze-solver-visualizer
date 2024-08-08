@@ -80,24 +80,7 @@ class AStar(BaseAlgorithm):
 
             # search for neighors
             for neighbor in self.get_neighbors(current_node.state):
-                # skip neighbor in the closed list
-                if neighbor in [i.state for i in closed_list]:
-                    continue
-                # create new node
-                node = ASNode(state=neighbor, parent=current_node)
-                # calculate f, g, h values
-                node.g = current_node.g + 1
-                node.h = ((neighbor[0] - self.target[0]) ** 2) + (
-                    (neighbor[1] - self.target[1]) ** 2
-                )
-                node.f = node.g + node.h
-                # check if the node already in the open list
-                if open_list.isexist(node.state, node.g):
-                    continue
-                # mark as explored
-                self.set_value(node.state, 3)
-                # add the node to the open list
-                open_list.add(node)
+                pass
 
         # no solution
         # distance report
