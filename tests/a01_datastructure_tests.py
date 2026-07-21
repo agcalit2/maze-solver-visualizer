@@ -121,10 +121,8 @@ class DatastructureTests(TestCase):
         assert open_list.isempty() == False
         # check isexist
         assert open_list.isexist((0, 0), 10) == True
-        # get lowest cost
-        assert open_list.lowest_cost(n3) == (n1, 0)
-        # get list front
+        # get list front (lowest-cost node)
         assert open_list.front() == n1
-        # remove by index
-        open_list.remove(1)
+        # pop lowest-cost node
+        assert open_list.pop() == n1
         assert len(open_list.list) == 2

@@ -1,4 +1,6 @@
+import heapq
 from collections import deque
+from itertools import count
 
 
 class Node:
@@ -16,8 +18,17 @@ class Node:
         self.state = state
         self.parent = parent
 
+class WeightNode(Node):
+    """
+    Node object containing distance from start
+    """
 
-class ASNode(Node):
+    def __init__(self, state: tuple, parent, g: int):
+        super().__init__(state, parent)
+        self.g = g
+
+
+class ASNode(WeightNode):
 
     """
     A* Node implementation for(A*)
@@ -25,11 +36,10 @@ class ASNode(Node):
     child :: (Node)
     """
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.g = 0
-        self.h = 0
-        self.f = 0
+    def __init__(self, state: tuple, parent, g: int = 0, h: int = 0):
+        super().__init__(state, parent, g)
+        self.h = h
+        self.f = self.g + self.h
 
 
 class Stack:
@@ -101,55 +111,47 @@ class Queue(Stack):
 class OpenList:
 
     """
-    A* open list implementation.
+    Open list implementation.
+
+    Backed by a binary min-heap (heapq), keyed on node.g, so the
+    lowest-cost node always sits at index 0 and both add/remove run
+    in O(log n) instead of the O(n) linear scan a plain list would need.
     """
 
     def __init__(self):
         self.list = []
+        # tie-breaker so heapq never has to compare WeightNode instances
+        # (which don't define __lt__) when two nodes share the same g
+        self._counter = count()
 
-    def lowest_cost(self, node: ASNode) -> tuple:
-        """
-        Get the lowest cost node.
-
-        :param node: current node to compare
-        :type node: ASNode
-        :returns: lowst node, current index
-        """
-        currentindex = 0
-        # iterate over open list elements
-        for index, lnode in enumerate(self.list):
-            # get lower cost node
-            if lnode.f < node.f:
-                node = lnode
-                currentindex = index
-        return node, currentindex
-
-    def add(self, node: ASNode):
+    def add(self, node: WeightNode):
         """
         Add new element into list.
 
         :param node: Node object to add
         :type node: Node
         """
-        self.list.append(node)
+        heapq.heappush(self.list, (node.g, next(self._counter), node))
 
-    def front(self) -> ASNode:
+    def front(self) -> WeightNode:
         """
         Return list front element.
 
+        The heap invariant guarantees this is always the lowest-cost node.
+
         :returns: front node element
-        :rtype: ASNode
+        :rtype: WeightNode
         """
-        return self.list[0]
+        return self.list[0][2]
 
-    def remove(self, index: int):
+    def pop(self) -> WeightNode:
         """
-        Remove element from list.
+        Remove and return the lowest-cost (front) node.
 
-        :param index: index to remove
-        :type index: int
+        :returns: lowest-cost node element
+        :rtype: WeightNode
         """
-        self.list.pop(index)
+        return heapq.heappop(self.list)[2]
 
     def isempty(self) -> bool:
         """
@@ -171,4 +173,4 @@ class OpenList:
         :returns: True if exist otherwise False
         :rtype: bool
         """
-        return any(node.state == state for node in self.list if g > node.g)
+        return any(node.state == state for _, _, node in self.list if g > node.g)

@@ -229,4 +229,6 @@ class GUI:
         # get mouse click poistion
         p = pygame.mouse.get_pos()
         # calulate square (x, y) from mouse position
-        return p[0] // self.BLOCKSIZE, p[1] // self.BLOCKSIZE
+        x = min(max(p[0] // self.BLOCKSIZE, 0), self.__grid.n - 1)
+        y = min(max(p[1] // self.BLOCKSIZE, 0), self.__grid.n - 1)
+        return x, y

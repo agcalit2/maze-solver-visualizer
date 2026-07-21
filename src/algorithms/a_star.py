@@ -36,19 +36,12 @@ class AStar(BaseAlgorithm):
         # start A* searching
         while not open_list.isempty() and self.run:
 
-            # get the current node
-            current_node = open_list.front()
-            current_index = 0
-
             # show sleep
             if show:
                 sleep(0.03)
 
-            # iterate over open list elements
-            current_node, current_index = open_list.lowest_cost(current_node)
-
-            # pop current from open list, add to closed list
-            open_list.remove(current_index)
+            # pop the lowest-cost node from the open list, add to closed list
+            current_node = open_list.pop()
             closed_list.add(current_node)
 
             # found the goal
@@ -73,8 +66,10 @@ class AStar(BaseAlgorithm):
                     current_node = current_node.parent
                 # reverse the solution
                 solution.reverse()
+                # total traversal cost of the path
+                path_cost = sum(self.get_cost(pos) for pos in solution) + self.get_cost(self.target)
                 # distance report
-                report.show_report(len(solution))
+                report.show_report(len(solution), path_cost)
                 # return the solution
                 return solution
 

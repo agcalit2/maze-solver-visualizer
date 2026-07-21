@@ -114,12 +114,14 @@ class ConfigurationDialog:
         self.window.geometry("%dx%d+%d+%d" % (w, h, x, y))
 
     @staticmethod
-    def show_report(distance: int):
+    def show_report(distance: int, cost: int = 0):
         """
         show distance repost message.
 
         :param distance: distance from start position to the target
         :type distance: int
+        :param cost: total traversal cost of the shortest path
+        :type cost: int
         """
         # hide the window
         mwindow = Tk()
@@ -128,7 +130,7 @@ class ConfigurationDialog:
         if distance:
             messagebox.showinfo(
                 "Distance report",
-                f"The shortest distance to the target is {distance} block(s) away.",
+                f"The shortest path costs {cost} and is {distance} block(s) away.",
             )
         else:
             messagebox.showinfo("Distance report", "There is no solution!")

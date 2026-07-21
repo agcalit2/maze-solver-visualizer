@@ -29,6 +29,8 @@ class DFS(BaseAlgorithm):
         # init frontier (QUEUE)
         frontier = Stack()
         frontier.add(start_node)
+        # frontier set for faster time complexity
+        frontierSet = set({start_node.state})
         # init explored nodes set
         explored = set()
 
@@ -37,6 +39,7 @@ class DFS(BaseAlgorithm):
 
             # dequeue node from frontier
             node = frontier.remove()
+            frontierSet.remove(node.state)
 
             # mark as explored
             self.set_value(node.state, 3)
@@ -66,17 +69,22 @@ class DFS(BaseAlgorithm):
                     node = node.parent
                 # reverse the solution
                 solution.reverse()
+                # total traversal cost of the path
+                path_cost = sum(self.get_cost(pos) for pos in solution) + self.get_cost(self.target)
                 # distance report
-                report.show_report(len(solution))
+                report.show_report(len(solution), path_cost)
                 # return the solution
                 return solution
 
             # mark as explored
-            explored.add(node)
+            explored.add(node.state)
 
             # search for neighbors
             for neighbor in self.get_neighbors(node.state):
-                pass
+                if neighbor not in explored and neighbor not in frontierSet:
+                    # add the node to the frontier
+                    frontier.add(Node(state=neighbor, parent=node))
+                    frontierSet.add(neighbor)
 
         # no solution
         # distance report
