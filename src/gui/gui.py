@@ -1,12 +1,13 @@
 import pygame
 
 # local import
-from src.gui.grid import Grid
+from src.gui.grid import Grid, SLOW_COST
 from src.gui.dialog import ConfigurationDialog
 from src.thread.thread import Threads
 from src.algorithms.a_star import AStar
 from src.algorithms.bfs import BFS
 from src.algorithms.dfs import DFS
+from src.algorithms.dijkstra import Dijkstra
 
 
 class GUI:
@@ -41,8 +42,13 @@ class GUI:
         # show / hide grid stroke
         self.__grid_stroke = True
         # init algorithms
-        args = (self.__grid.grid, self.__grid._start, self.__grid._target)
-        self.__algorithms = (AStar(*args), BFS(*args), DFS(*args))
+        args = (
+            self.__grid.grid,
+            self.__grid._start,
+            self.__grid._target,
+            self.__grid.cost,
+        )
+        self.__algorithms = (AStar(*args), BFS(*args), DFS(*args), Dijkstra(*args))
         # init current position
         self.__current_pos = (0, 0)
         # init configuration dialog
@@ -71,6 +77,8 @@ class GUI:
         draw_bool = True
         # eraser
         iseraser = False
+        # slow-tile paint mode
+        slow_mode = False
         # init the dialog
         # self.__threads.start(self.__dialog.start, ())
         # start refresh thread
@@ -109,8 +117,8 @@ class GUI:
                 elif e.type == pygame.MOUSEMOTION and mouse_drag:
                     # check if drawing walls enabled
                     if draw_bool:
-                        # draw wall
-                        self.__draw_by_mouse(iseraser)
+                        # draw wall / slow tile
+                        self.__draw_by_mouse(iseraser, slow_mode)
                     else:
                         # move start/target position
                         self.__move_start_target(start)
@@ -129,6 +137,9 @@ class GUI:
                     # eraser
                     elif e.key == pygame.K_e:
                         iseraser = not iseraser
+                    # slow-tile paint mode
+                    elif e.key == pygame.K_w:
+                        slow_mode = not slow_mode
                     # show dialog
                     elif e.key == pygame.K_RETURN:
                         if self.__algorithms[self.__dialog.value].run:
@@ -184,19 +195,29 @@ class GUI:
         # set block value to two
         self.__grid.set_value(pos, 2)
 
-    def __draw_by_mouse(self, iseraser: bool):
+    def __draw_by_mouse(self, iseraser: bool, slow_mode: bool = False):
         """
         Draw maze by the mouse.
 
         :param iseraser: enable/disable erasing
+        :param slow_mode: enable/disable slow-tile painting
         """
         # get current position
         pos = self.__get_current_position()
         # block coloring start/target positions
         if not pos == self.__grid.start and not pos == self.__grid.target:
-            v = 0 if iseraser else 1
-            # set block value to v
-            self.__grid.set_value(pos, v)
+            if iseraser:
+                # erase wall / slow tile
+                self.__grid.set_value(pos, 0)
+                self.__grid.set_cost(pos, 1)
+            elif slow_mode:
+                # paint slow tile (not a wall, higher traversal cost)
+                self.__grid.set_value(pos, 0)
+                self.__grid.set_cost(pos, SLOW_COST)
+            else:
+                # paint wall (never slow)
+                self.__grid.set_value(pos, 1)
+                self.__grid.set_cost(pos, 1)
 
     def __get_current_position(self) -> tuple:
         """

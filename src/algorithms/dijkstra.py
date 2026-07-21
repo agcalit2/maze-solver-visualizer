@@ -2,14 +2,14 @@ from time import sleep
 
 # local import
 from src.algorithms.base import BaseAlgorithm
-from src.datastructures.datastructure import Stack, Node
+from src.datastructures.datastructure import OpenList, ASNode
 from src.gui.dialog import ConfigurationDialog as report
 
 
-class DFS(BaseAlgorithm):
+class Dijkstra(BaseAlgorithm):
 
     """
-    Depth First Search algorithm implementation.
+    Dijkstra's algorithm implementation.
     """
 
     def __init__(self, *args, **kwargs):
@@ -17,7 +17,7 @@ class DFS(BaseAlgorithm):
 
     def find_shortest_path(self, show: bool) -> list:
         """
-        Find shortest path (DFS).
+        Find shortest path (Dijkstra).
 
         :param show: if True, the algorithm will run with delay
         :type show: bool
@@ -25,45 +25,52 @@ class DFS(BaseAlgorithm):
         :rtype: list
         """
         # create init node
-        start_node = Node(state=self.start, parent=None)
-        # init frontier (QUEUE)
-        frontier = Stack()
-        frontier.add(start_node)
-        # init explored nodes set
-        explored = set()
+        start_node = ASNode(state=self.start, parent=None)
+        start_node.g = start_node.h = start_node.f = 0
+        # init open list
+        open_list = OpenList()
+        open_list.add(start_node)
+        # init closed list
+        closed_list = set()
 
-        # start DFS
-        while not frontier.isempty() and self.run:
+        # start Dijkstra searching
+        while not open_list.isempty() and self.run:
 
-            # dequeue node from frontier
-            node = frontier.remove()
+            # get the current node
+            current_node = open_list.front()
+            current_index = 0
 
-            # mark as explored
-            self.set_value(node.state, 3)
             # show sleep
             if show:
                 sleep(0.03)
 
-            # check if the node state equals target
-            if node.state == self.target:
+            # iterate over open list elements
+            current_node, current_index = open_list.lowest_cost(current_node)
+
+            # pop current from open list, add to closed list
+            open_list.remove(current_index)
+            closed_list.add(current_node)
+
+            # found the goal
+            if current_node.state == self.target:
                 # recolor start and target
                 self.set_value(self.target, 5)
                 self.set_value(self.start, 5)
                 # init solution list
                 solution = []
                 # skip target node
-                node = node.parent
+                current_node = current_node.parent
                 # backtrack to get the solution list
-                while node.parent is not None:
+                while current_node.parent is not None:
                     # store solution tuple (movie_id, actor_id)
-                    solution.append(node.state)
+                    solution.append(current_node.state)
                     # mark solution path
-                    self.set_value(node.state, 4)
+                    self.set_value(current_node.state, 4)
                     # show sleep
                     if show:
                         sleep(0.03)
                     # move to the next parent
-                    node = node.parent
+                    current_node = current_node.parent
                 # reverse the solution
                 solution.reverse()
                 # distance report
@@ -71,15 +78,12 @@ class DFS(BaseAlgorithm):
                 # return the solution
                 return solution
 
-            # mark as explored
-            explored.add(node)
-
-            # search for neighbors
-            for neighbor in self.get_neighbors(node.state):
+            # search for neighors
+            for neighbor in self.get_neighbors(current_node.state):
                 pass
 
         # no solution
         # distance report
-        if frontier.isempty():
+        if open_list.isempty():
             report.show_report(0)
         return None

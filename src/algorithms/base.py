@@ -9,11 +9,14 @@ class BaseAlgorithm:
     :type start: list
     :param target: target position (x, y)
     :type target: list
+    :param cost: per-cell traversal cost grid, defaults to None (uniform cost 1)
+    :type cost: list
     """
 
-    def __init__(self, grid: list, start: list, target: list):
+    def __init__(self, grid: list, start: list, target: list, cost: list = None):
         self.grid = grid
         self.grid_len = len(self.grid)
+        self.cost = cost
         self.run = False
         self.__start = start
         self.__target = target
@@ -94,6 +97,17 @@ class BaseAlgorithm:
                 # append the neighbor
                 neighbors.append((nx, ny))
         return neighbors
+
+    def get_cost(self, pos: tuple) -> int:
+        """
+        Get traversal cost for a position.
+
+        :param pos: block position (x, y)
+        :type pos: tuple
+        :returns: cost to enter that block (1 if no cost grid was provided)
+        :rtype: int
+        """
+        return self.cost[pos[0]][pos[1]] if self.cost is not None else 1
 
     def set_value(self, pos: tuple, value: int):
         """

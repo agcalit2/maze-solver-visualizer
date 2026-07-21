@@ -76,12 +76,7 @@ class BFS(BaseAlgorithm):
 
             # search for neighbors
             for neighbor in self.get_neighbors(node.state):
-                # check if the neighbor not in frontier and not explored
-                if not frontier.isexist(neighbor) and neighbor not in [
-                    i.state for i in explored
-                ]:
-                    # add the node to the frontier
-                    frontier.add(Node(state=neighbor, parent=node))
+                pass
 
         # no solution
         # distance report

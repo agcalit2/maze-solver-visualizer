@@ -11,6 +11,7 @@ from src.algorithms.base import BaseAlgorithm
 from src.algorithms.a_star import AStar
 from src.algorithms.bfs import BFS
 from src.algorithms.dfs import DFS
+from src.algorithms.dijkstra import Dijkstra
 
 
 class AlgorithmTests(TestCase):
@@ -125,3 +126,28 @@ class AlgorithmTests(TestCase):
             dfs.set_value((i, 10), 1)
         # get the solution (no solution)
         assert dfs.find_shortest_path(False) == None
+
+    @patch("ConfigurationDialog.show_report")
+    def test_05_Dijkstra(self, mock):
+        """
+        Test Dijkstra (Dijkstra's algorithm).
+        """
+        # mock report.show_report
+        mock.return_value = None
+        # init 20*20 grid
+        grid = [[0 for i in range(20)] for j in range(20)]
+        # init base class
+        dijkstra = Dijkstra(grid, (1, 1), (19, 19))
+        dijkstra.run = True
+        # set wall
+        for i in range(10):
+            # tests set value
+            dijkstra.set_value((i, 10), 1)
+        # get the solution (there's a solution)
+        assert dijkstra.find_shortest_path(False) == [(i, i) for i in range(2, 19)]
+        # split the grid
+        for i in range(20):
+            # tests set value
+            dijkstra.set_value((i, 10), 1)
+        # get the solution (no solution)
+        assert dijkstra.find_shortest_path(False) == None

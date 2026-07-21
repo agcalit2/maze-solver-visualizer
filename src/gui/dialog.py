@@ -60,10 +60,20 @@ class ConfigurationDialog:
             bg="#cfaf4f",
             fg="black",
         )
+        b4 = Button(
+            self.window,
+            text="Dijkstra",
+            command=lambda: self.choose(3),
+            height=1,
+            width=8,
+            bg="#cfaf4f",
+            fg="black",
+        )
 
         b1.place(x=10, y=30)
         b2.place(x=70, y=30)
         b3.place(x=130, y=30)
+        b4.place(x=190, y=30)
 
         # check box
         self.shows = IntVar(value=1)
@@ -74,7 +84,7 @@ class ConfigurationDialog:
             bg="#2c2825",
             variable=self.shows,
         )
-        chbtn1.place(x=190, y=30)
+        chbtn1.place(x=260, y=30)
 
         # run main loop
         self.window.mainloop()
@@ -91,7 +101,7 @@ class ConfigurationDialog:
         # close the window
         self.window.destroy()
 
-    def center_window(self, w=280, h=70):
+    def center_window(self, w=360, h=70):
         """
         Center dialog on the screen.
         """

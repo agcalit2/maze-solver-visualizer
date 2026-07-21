@@ -1,5 +1,8 @@
 import pygame
 
+# cost of entering a "slow" tile (normal tiles cost 1)
+SLOW_COST = 5
+
 
 class Grid:
 
@@ -22,6 +25,8 @@ class Grid:
         self.n = self.__size[0] // self.BLOCKSIZE
         # init the grid (empty grid)
         self.grid = [[0 for i in range(self.n)] for j in range(self.n)]
+        # init the cost grid (uniform cost, no slow tiles)
+        self.cost = [[1 for i in range(self.n)] for j in range(self.n)]
         # set start / target
         self.__start = [1, 1]
         self.__target = [self.n - 2, self.n - 2]
@@ -102,6 +107,7 @@ class Grid:
             for x in range(self.n):
                 for y in range(self.n):
                     self.grid[x][y] = 0
+                    self.cost[x][y] = 1
         else:
             # reset only non-wall block
             for x in range(self.n):
@@ -157,6 +163,9 @@ class Grid:
                 elif self.grid[x][y] == 5:
                     # found target
                     pygame.draw.rect(self.__screen, (204, 51, 51), rect)
+                elif self.cost[x][y] > 1:
+                    # draw rect (fill)(slow tile)
+                    pygame.draw.rect(self.__screen, (204, 153, 51), rect)
 
     def set_value(self, pos: tuple, value: int):
         """
@@ -168,3 +177,14 @@ class Grid:
         :type value: int
         """
         self.grid[pos[0]][pos[1]] = value
+
+    def set_cost(self, pos: tuple, value: int):
+        """
+        Set block traversal cost by position.
+
+        :param pos: block position (x, y)
+        :type pos: tuple
+        :param value: block cost
+        :type value: int
+        """
+        self.cost[pos[0]][pos[1]] = value
