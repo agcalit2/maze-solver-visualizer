@@ -2,7 +2,7 @@ from time import sleep
 
 # local import
 from src.algorithms.base import BaseAlgorithm
-from src.datastructures.datastructure import OpenList, WeightNode
+from src.datastructures.datastructure import ASNode, ASOpenList
 from src.gui.dialog import ConfigurationDialog as report
 
 
@@ -25,7 +25,8 @@ class Dijkstra(BaseAlgorithm):
         :rtype: list
         """
         # create init node
-        start_node = WeightNode(state=self.start, parent=None, g=0)
+        # h is fixed at 0 (Dijkstra == A* with a zero heuristic)
+        start_node = ASNode(state=self.start, parent=None, g=0, h=0)
         # init distances dict: start to every position, all infinity except start
         distances = {
             (x, y): float("inf")
@@ -34,7 +35,7 @@ class Dijkstra(BaseAlgorithm):
         }
         distances[self.start] = 0
         # init open list
-        open_list = OpenList()
+        open_list = ASOpenList()
         open_list.add(start_node)
         # track frontier set
         frontier = {start_node.state}
@@ -98,14 +99,14 @@ class Dijkstra(BaseAlgorithm):
 
                 # if not already in the frontier, add it to the frontier
                 if neighbor not in frontier:
-                    node = WeightNode(state=neighbor, parent=current_node, g=tentative_g)
+                    node = ASNode(state=neighbor, parent=current_node, g=tentative_g, h=0)
                     open_list.add(node)
                     frontier.add(neighbor)
                     continue
 
                 if neighbor in frontier and distances[neighbor] > tentative_g:
                     # update the node's cost + parent, and distances[neighbor]
-                    node = WeightNode(state=neighbor, parent=current_node, g=tentative_g)
+                    node = ASNode(state=neighbor, parent=current_node, g=tentative_g, h=0)
                     open_list.add(node)
                     distances[neighbor] = tentative_g
                     continue

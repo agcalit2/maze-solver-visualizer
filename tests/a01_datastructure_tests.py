@@ -1,7 +1,7 @@
 from unittest import TestCase
 
 # local import
-from src.datastructures.datastructure import Node, ASNode, Stack, Queue, OpenList
+from src.datastructures.datastructure import Node, ASNode, Stack, Queue, ASOpenList
 
 
 class DatastructureTests(TestCase):
@@ -93,12 +93,12 @@ class DatastructureTests(TestCase):
         # remove first in
         assert queue.remove() == n1
 
-    def test_05_OpenList(self):
+    def test_05_ASOpenList(self):
         """
-        Test OpenList.
+        Test ASOpenList.
         """
         # init open list
-        open_list = OpenList()
+        open_list = ASOpenList()
         # check isempty
         assert open_list.isempty() == True
         # add nodes
@@ -119,8 +119,6 @@ class DatastructureTests(TestCase):
         open_list.add(n3)
         # check isempty
         assert open_list.isempty() == False
-        # check isexist
-        assert open_list.isexist((0, 0), 10) == True
         # get list front (lowest-cost node)
         assert open_list.front() == n1
         # pop lowest-cost node

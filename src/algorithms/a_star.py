@@ -2,7 +2,7 @@ from time import sleep
 
 # local import
 from src.algorithms.base import BaseAlgorithm
-from src.datastructures.datastructure import OpenList, ASNode
+from src.datastructures.datastructure import ASNode, ASOpenList
 from src.gui.dialog import ConfigurationDialog as report
 
 
@@ -25,13 +25,21 @@ class AStar(BaseAlgorithm):
         :rtype: list
         """
         # create init node
-        start_node = ASNode(state=self.start, parent=None)
-        start_node.g = start_node.h = start_node.f = 0
+        start_node = ASNode(state=self.start, parent=None, g=0, h=self.euclidean_distance(self.start, self.target))
+        # init distances dict: start to every position, all infinity except start
+        distances = {
+            (x, y): float("inf")
+            for x in range(self.grid_len)
+            for y in range(self.grid_len)
+        }
+        distances[self.start] = 0
         # init open list
-        open_list = OpenList()
+        open_list = ASOpenList()
         open_list.add(start_node)
-        # init closed list
-        closed_list = set()
+        # track frontier set
+        frontier = {start_node.state}
+        # init explored list
+        explored_list = set()
 
         # start A* searching
         while not open_list.isempty() and self.run:
@@ -40,9 +48,15 @@ class AStar(BaseAlgorithm):
             if show:
                 sleep(0.03)
 
-            # pop the lowest-cost node from the open list, add to closed list
+            # pop the lowest-cost node from the open list, add to explored list
             current_node = open_list.pop()
-            closed_list.add(current_node)
+            if current_node.state in explored_list:
+                continue
+            frontier.remove(current_node.state)
+            explored_list.add(current_node.state)
+
+            # mark as explored
+            self.set_value(current_node.state, 3)
 
             # found the goal
             if current_node.state == self.target:
@@ -75,7 +89,26 @@ class AStar(BaseAlgorithm):
 
             # search for neighors
             for neighbor in self.get_neighbors(current_node.state):
-                pass
+                # if neighbor is already explored, skip it
+                if neighbor in explored_list:
+                    continue
+
+                # tentative cost to reach neighbor via current_node
+                tentative_g = current_node.g + self.get_cost(neighbor)
+
+                # if not already in the frontier, add it to the frontier
+                if neighbor not in frontier:
+                    node = ASNode(state=neighbor, parent=current_node, g=tentative_g, h=self.euclidean_distance(neighbor, self.target))
+                    open_list.add(node)
+                    frontier.add(neighbor)
+                    continue
+
+                if neighbor in frontier and distances[neighbor] > tentative_g:
+                    # update the node's cost + parent, and distances[neighbor]
+                    node = ASNode(state=neighbor, parent=current_node, g=tentative_g, h=self.euclidean_distance(neighbor, self.target))
+                    open_list.add(node)
+                    distances[neighbor] = tentative_g
+                    continue
 
         # no solution
         # distance report

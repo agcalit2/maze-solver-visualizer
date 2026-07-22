@@ -1,3 +1,6 @@
+from math import sqrt
+
+
 class BaseAlgorithm:
 
     """
@@ -108,6 +111,19 @@ class BaseAlgorithm:
         :rtype: int
         """
         return self.cost[pos[0]][pos[1]] if self.cost is not None else 1
+
+    def euclidean_distance(self, pos_a: tuple, pos_b: tuple) -> float:
+        """
+        Euclidean distance between two positions.
+
+        :param pos_a: first position (x, y)
+        :type pos_a: tuple
+        :param pos_b: second position (x, y)
+        :type pos_b: tuple
+        :returns: straight-line distance between pos_a and pos_b
+        :rtype: float
+        """
+        return sqrt((pos_a[0] - pos_b[0]) ** 2 + (pos_a[1] - pos_b[1]) ** 2)
 
     def set_value(self, pos: tuple, value: int):
         """
